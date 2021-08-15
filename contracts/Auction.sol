@@ -1,6 +1,8 @@
 pragma solidity >=0.7.0 <0.9.0;
 
-contract SimpleAuction {
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract SimpleAuction is Ownable{
 
 	// Keep auction ID and map all fields to that to handle multiple auctions
 
@@ -50,6 +52,10 @@ contract SimpleAuction {
         beneficiary[_auctionId] = _beneficiary;
         auctionEndTime[_auctionId] = block.timestamp + secondsInDay;
     }
+    
+    function disableClaim(uint256 _auctionId) public onlyOwner {
+        ended[_auctionId] = true;
+    }
 
     /// Bid on the auction with the value sent
     /// together with this transaction.
@@ -61,6 +67,9 @@ contract SimpleAuction {
         // the transaction. The keyword payable
         // is required for the function to
         // be able to receive Ether.
+        
+        // Check if auction ended
+        require(!ended[_auctionId], "auctionEnd has already been called.");
 
         // Revert the call if the bidding
         // period is over.
