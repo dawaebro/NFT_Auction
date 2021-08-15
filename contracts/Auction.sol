@@ -1,11 +1,15 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "https://github.com/0xcert/ethereum-erc721/src/contracts/tokens/nf-token-metadata.sol";
 
 contract SimpleAuction is Ownable{
 
 	// Keep auction ID and map all fields to that to handle multiple auctions
-
+    NFTokenMetadata _nft;
+    mapping(uint256 => address) tokenOwner;
+    mapping(uint256 => uint256) tokenId;
+    
 
     // Parameters of the auction. Times are either
     // absolute unix timestamps (seconds since 1970-01-01)
@@ -41,16 +45,23 @@ contract SimpleAuction is Ownable{
     // recognizable by the three slashes.
     // It will be shown when the user is asked to
     // confirm a transaction.
+    constructor(NFTokenMetadata _addressOfNFT) {
+        _nft = _addressOfNFT;
+    }
 
     /// Create a simple auction with `_biddingTime`
     /// seconds bidding time on behalf of the
     /// beneficiary address `_beneficiary`.
-    constructor(
+    function startAuction(
         uint256 _auctionId,
+        uint256 _tokenId,
         address payable _beneficiary
-    ) {
+    ) public {
+        require(msg.sender == _nft.ownerOf(_tokenId), "Only token owner can start auction for the tokenId");
         beneficiary[_auctionId] = _beneficiary;
         auctionEndTime[_auctionId] = block.timestamp + secondsInDay;
+        tokenOwner[_auctionId] = _nft.ownerOf(_tokenId);
+        tokenId[_auctionId] = _tokenId;
     }
     
     function disableClaim(uint256 _auctionId) public onlyOwner {
@@ -145,5 +156,8 @@ contract SimpleAuction is Ownable{
 
         // 3. Interaction
         beneficiary[_auctionId].transfer(highestBid[_auctionId]);
+        
+        // 4. Transfer NFT to winner
+        _nft.transferFrom(tokenOwner[_auctionId], msg.sender, tokenId[_auctionId]);
     }
 }
