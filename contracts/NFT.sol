@@ -9,17 +9,20 @@ contract NFT is NFTokenMetadata, Ownable {
     
     uint256 internal tokenCounter = 0;
     
-    address public auction;
-    
     constructor () {
         nftName = "ART NFT";
         nftSymbol = "ARFT";
         tokenCounter = 0;
     }
     
-    function setAuctionAddress(address _auction) public onlyOwner {
-        auction = _auction;
+    function setTokenCounter(uint256 _cntr) public {
+        tokenCounter = _cntr;
     }
+    
+    function getTokenCounter() public returns (uint256) {
+        return tokenCounter;
+    }
+    
     
     /*
     * @dev Mints a new NFT.
@@ -32,13 +35,11 @@ contract NFT is NFTokenMetadata, Ownable {
     string calldata _uri
     ) 
     external
-    onlyOwner
     returns (uint256)
     {
         uint256 mintedTokenId = tokenCounter;
         super._mint(_to, tokenCounter);
         super._setTokenUri(tokenCounter, _uri);
-        this.approve(auction, tokenCounter);
         tokenCounter += 1;
         return mintedTokenId;
     }
