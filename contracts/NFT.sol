@@ -18,8 +18,12 @@ contract NFT is NFTokenMetadata, Ownable {
         tokenCounter = _cntr;
     }
     
-    function getTokenCounter() public returns (uint256) {
+    function getTokenCounter() public view returns (uint256) {
         return tokenCounter;
+    }
+
+    function disableToken(uint256 _tokenId) public onlyOwner {
+        blockedTokenId[_tokenId] = true;
     }
     
     

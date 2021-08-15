@@ -19,7 +19,7 @@ function setTokenCounter(_amount)
 		return;
 	}
 
-    NFT.setTokenCounter.estimateGas(_proofToken, function(error, result) {
+    NFT.setTokenCounter.estimateGas(_amount, function(error, result) {
         if (!error) {
             NFT.setTokenCounter(_amount, function(error, result)
 			{
