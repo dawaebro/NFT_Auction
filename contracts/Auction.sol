@@ -9,7 +9,6 @@ contract SimpleAuction is Ownable{
     NFTokenMetadata _nft;
     mapping(uint256 => address) tokenOwner;
     mapping(uint256 => uint256) tokenId;
-    
 
     // Parameters of the auction. Times are either
     // absolute unix timestamps (seconds since 1970-01-01)
