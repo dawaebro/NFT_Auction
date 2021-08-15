@@ -1,7 +1,7 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "https://github.com/0xcert/ethereum-erc721/src/contracts/tokens/nf-token-metadata.sol";
+import "@0xcert/ethereum-erc721/src/contracts/tokens/nf-token-metadata.sol";
 // import "NFT.sol";
 
 contract SimpleAuction is Ownable{
