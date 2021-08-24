@@ -4,4 +4,4 @@ artifacts
 test
 scripts
 ship
-ship.zip
+**/*.zip

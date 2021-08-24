@@ -491,19 +491,209 @@ var nftcontract = web3.eth.contract(
 	  ]
 );
 
+var simpleAuctionABI = web3.eth.contract(
+	[
+		{
+		  "inputs": [
+			{
+			  "internalType": "contract NFTokenMetadata",
+			  "name": "_addressOfNFT",
+			  "type": "address"
+			}
+		  ],
+		  "stateMutability": "nonpayable",
+		  "type": "constructor"
+		},
+		{
+		  "anonymous": false,
+		  "inputs": [
+			{
+			  "indexed": false,
+			  "internalType": "address",
+			  "name": "winner",
+			  "type": "address"
+			},
+			{
+			  "indexed": false,
+			  "internalType": "uint256",
+			  "name": "amount",
+			  "type": "uint256"
+			}
+		  ],
+		  "name": "AuctionEnded",
+		  "type": "event"
+		},
+		{
+		  "anonymous": false,
+		  "inputs": [
+			{
+			  "indexed": false,
+			  "internalType": "address",
+			  "name": "bidder",
+			  "type": "address"
+			},
+			{
+			  "indexed": false,
+			  "internalType": "uint256",
+			  "name": "amount",
+			  "type": "uint256"
+			}
+		  ],
+		  "name": "HighestBidIncreased",
+		  "type": "event"
+		},
+		{
+		  "anonymous": false,
+		  "inputs": [
+			{
+			  "indexed": true,
+			  "internalType": "address",
+			  "name": "previousOwner",
+			  "type": "address"
+			},
+			{
+			  "indexed": true,
+			  "internalType": "address",
+			  "name": "newOwner",
+			  "type": "address"
+			}
+		  ],
+		  "name": "OwnershipTransferred",
+		  "type": "event"
+		},
+		{
+		  "inputs": [
+			{
+			  "internalType": "uint256",
+			  "name": "_auctionId",
+			  "type": "uint256"
+			}
+		  ],
+		  "name": "auctionEnd",
+		  "outputs": [],
+		  "stateMutability": "nonpayable",
+		  "type": "function"
+		},
+		{
+		  "inputs": [
+			{
+			  "internalType": "uint256",
+			  "name": "_auctionId",
+			  "type": "uint256"
+			}
+		  ],
+		  "name": "bid",
+		  "outputs": [],
+		  "stateMutability": "payable",
+		  "type": "function"
+		},
+		{
+		  "inputs": [
+			{
+			  "internalType": "uint256",
+			  "name": "_auctionId",
+			  "type": "uint256"
+			}
+		  ],
+		  "name": "disableClaim",
+		  "outputs": [],
+		  "stateMutability": "nonpayable",
+		  "type": "function"
+		},
+		{
+		  "inputs": [],
+		  "name": "owner",
+		  "outputs": [
+			{
+			  "internalType": "address",
+			  "name": "",
+			  "type": "address"
+			}
+		  ],
+		  "stateMutability": "view",
+		  "type": "function"
+		},
+		{
+		  "inputs": [],
+		  "name": "renounceOwnership",
+		  "outputs": [],
+		  "stateMutability": "nonpayable",
+		  "type": "function"
+		},
+		{
+		  "inputs": [
+			{
+			  "internalType": "uint256",
+			  "name": "_auctionId",
+			  "type": "uint256"
+			},
+			{
+			  "internalType": "uint256",
+			  "name": "_tokenId",
+			  "type": "uint256"
+			},
+			{
+			  "internalType": "address payable",
+			  "name": "_beneficiary",
+			  "type": "address"
+			}
+		  ],
+		  "name": "startAuction",
+		  "outputs": [],
+		  "stateMutability": "nonpayable",
+		  "type": "function"
+		},
+		{
+		  "inputs": [
+			{
+			  "internalType": "address",
+			  "name": "newOwner",
+			  "type": "address"
+			}
+		  ],
+		  "name": "transferOwnership",
+		  "outputs": [],
+		  "stateMutability": "nonpayable",
+		  "type": "function"
+		},
+		{
+		  "inputs": [
+			{
+			  "internalType": "uint256",
+			  "name": "_auctionId",
+			  "type": "uint256"
+			}
+		  ],
+		  "name": "withdraw",
+		  "outputs": [
+			{
+			  "internalType": "bool",
+			  "name": "",
+			  "type": "bool"
+			}
+		  ],
+		  "stateMutability": "nonpayable",
+		  "type": "function"
+		}
+	  ]
+);
+
 var contractAddress = "0x43D525aF21B9402650b694e6282073A394Abf601"; // Change this to ropsten test address
 var NFT = nftcontract.at(contractAddress);
 
+var simpleAuctionAddress = "0xF660C945dBfe725B2AC58F0a4317BBDcFC2C2183";
+var auction = simpleAuctionABI.at(simpleAuctionAddress);
 
-const onClickConnect = async () => {
-    try {
-      const newAccounts = await ethereum.request({
-        method: 'eth_requestAccounts',
-      });
-      handleNewAccounts(newAccounts);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
-onClickConnect();
+// const onClickConnect = async () => {
+//     try {
+//       const newAccounts = await ethereum.request({
+//         method: 'eth_requestAccounts',
+//       });
+//       handleNewAccounts(newAccounts);
+//     } catch (error) {
+//       console.error(error);
+//     }
+//   };
+
+// onClickConnect();
