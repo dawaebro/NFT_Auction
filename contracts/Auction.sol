@@ -18,6 +18,9 @@ contract SimpleAuction is Ownable{
     mapping(uint256 => address payable) beneficiary;
     
     uint256 internal secondsInDay = 60;
+    // uint256 internal secondsInDay = 86400;
+    uint256 internal last15Minutes = 60 * 15;
+    uint256 internal additional30Mins = 60 * 30;
 
     // uint public auctionEndTime;
     mapping(uint256 => uint) auctionEndTime;
@@ -59,7 +62,7 @@ contract SimpleAuction is Ownable{
     ) public {
         require(msg.sender == _nft.ownerOf(_tokenId), "Only token owner can start auction for the tokenId");
         beneficiary[_auctionId] = _beneficiary;
-        auctionEndTime[_auctionId] = block.timestamp + secondsInDay;
+        auctionEndTime[_auctionId] = block.timestamp + secondsInDay * 3;
         tokenOwner[_auctionId] = _nft.ownerOf(_tokenId);
         tokenId[_auctionId] = _tokenId;
         _nft.setApprovalForAll(address(this), true);
@@ -110,6 +113,13 @@ contract SimpleAuction is Ownable{
         }
         highestBidder[_auctionId] = msg.sender;
         highestBid[_auctionId] = msg.value;
+
+        // if time to end is less
+        if (auctionEndTime[_auctionId] < block.timestamp + last15Minutes) {
+            auctionEndTime[_auctionId] = auctionEndTime[_auctionId] + additional30Mins;
+        }
+
+
         emit HighestBidIncreased(msg.sender, msg.value);
     }
 
