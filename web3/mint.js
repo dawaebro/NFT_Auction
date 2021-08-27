@@ -1,5 +1,5 @@
 
-function setTokenCounter(_amount)
+function mint(_to, _uri)
 {
 	if(!web3.isConnected()) {
 		console.log("Please connect to Metamask.");
@@ -19,9 +19,9 @@ function setTokenCounter(_amount)
 		return;
 	}
 
-    NFT.setTokenCounter.estimateGas(_amount, function(error, result) {
+    NFT.mint.estimateGas(_to, _uri, function(error, result) {
         if (!error) {
-            NFT.setTokenCounter(_amount, function(error, result)
+            NFT.mint(_to, _uri, function(error, result)
 			{
 				if (!error)
 				{

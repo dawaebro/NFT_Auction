@@ -16,6 +16,9 @@ contract SimpleAuction is Ownable{
     // or time periods in seconds.
     // address payable public beneficiary;
     mapping(uint256 => address payable) beneficiary;
+
+    // mapping to hold initial bid amount
+    mapping(uint256 => uint256) initialBidAmount;
     
     uint256 internal secondsInDay = 60;
     // uint256 internal secondsInDay = 86400;
@@ -58,18 +61,24 @@ contract SimpleAuction is Ownable{
     function startAuction(
         uint256 _auctionId,
         uint256 _tokenId,
+        uint256 _initialBidAmount,
         address payable _beneficiary
     ) public {
         require(msg.sender == _nft.ownerOf(_tokenId), "Only token owner can start auction for the tokenId");
         beneficiary[_auctionId] = _beneficiary;
         auctionEndTime[_auctionId] = block.timestamp + secondsInDay * 3;
         tokenOwner[_auctionId] = _nft.ownerOf(_tokenId);
+        initialBidAmount[_auctionId] = _initialBidAmount;
         tokenId[_auctionId] = _tokenId;
         _nft.setApprovalForAll(address(this), true);
     }
     
     function disableClaim(uint256 _auctionId) public onlyOwner {
         ended[_auctionId] = true;
+    }
+
+    function getInitialBidAmount(uint256 _auctionId) public view returns(uint256) {
+        return initialBidAmount[_auctionId];
     }
 
     /// Bid on the auction with the value sent
@@ -91,6 +100,12 @@ contract SimpleAuction is Ownable{
         require(
             block.timestamp <= auctionEndTime[_auctionId],
             "Auction already ended."
+        );
+
+        // Require price to be more than initial bid amount
+        require(
+            msg.value > initialBidAmount[_auctionId],
+            "Please bid an amount > initialBidAmount"
         );
 
         // If the bid is not higher, send the

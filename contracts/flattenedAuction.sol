@@ -5,7 +5,6 @@
 
 pragma solidity ^0.8.0;
 
-
 /*
  * @dev Provides information about the current execution context, including the
  * sender of the transaction and its data. While these are generally available
@@ -28,6 +27,7 @@ abstract contract Context {
 
 
 // File @openzeppelin/contracts/access/Ownable.sol@v4.2.0
+
 
 
 
@@ -99,7 +99,6 @@ abstract contract Ownable is Context {
 
 
 // File @0xcert/ethereum-erc721/src/contracts/tokens/erc721.sol@v2.4.0
-
 
 
 
@@ -282,7 +281,6 @@ interface ERC721
 
 
 
-
 /**
  * @dev ERC-721 interface for accepting safe transfers.
  * See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md.
@@ -319,7 +317,6 @@ interface ERC721TokenReceiver
 
 
 
-
 /**
  * @dev A standard for detecting smart contract interfaces. 
  * See: https://eips.ethereum.org/EIPS/eip-165.
@@ -344,7 +341,6 @@ interface ERC165
 
 
 // File @0xcert/ethereum-erc721/src/contracts/utils/supports-interface.sol@v2.4.0
-
 
 
 
@@ -391,7 +387,6 @@ contract SupportsInterface is
 
 
 
-
 /**
  * @dev Utility library of inline functions on addresses.
  * @notice Based on:
@@ -430,7 +425,6 @@ library AddressUtils
 
 
 // File @0xcert/ethereum-erc721/src/contracts/tokens/nf-token.sol@v2.4.0
-
 
 
 
@@ -920,7 +914,6 @@ contract NFToken is
 
 
 
-
 /**
  * @dev Optional metadata extension for ERC-721 non-fungible token standard.
  * See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md.
@@ -961,7 +954,6 @@ interface ERC721Metadata
 
 
 // File @0xcert/ethereum-erc721/src/contracts/tokens/nf-token-metadata.sol@v2.4.0
-
 
 
 
@@ -1087,7 +1079,6 @@ contract NFTokenMetadata is
 
 // File contracts/Auction.sol
 
-
 // import "NFT.sol";
 
 contract SimpleAuction is Ownable{
@@ -1102,6 +1093,9 @@ contract SimpleAuction is Ownable{
     // or time periods in seconds.
     // address payable public beneficiary;
     mapping(uint256 => address payable) beneficiary;
+
+    // mapping to hold initial bid amount
+    mapping(uint256 => uint256) initialBidAmount;
     
     uint256 internal secondsInDay = 60;
     // uint256 internal secondsInDay = 86400;
@@ -1144,18 +1138,24 @@ contract SimpleAuction is Ownable{
     function startAuction(
         uint256 _auctionId,
         uint256 _tokenId,
+        uint256 _initialBidAmount,
         address payable _beneficiary
     ) public {
         require(msg.sender == _nft.ownerOf(_tokenId), "Only token owner can start auction for the tokenId");
         beneficiary[_auctionId] = _beneficiary;
         auctionEndTime[_auctionId] = block.timestamp + secondsInDay * 3;
         tokenOwner[_auctionId] = _nft.ownerOf(_tokenId);
+        initialBidAmount[_auctionId] = _initialBidAmount;
         tokenId[_auctionId] = _tokenId;
         _nft.setApprovalForAll(address(this), true);
     }
     
     function disableClaim(uint256 _auctionId) public onlyOwner {
         ended[_auctionId] = true;
+    }
+
+    function getInitialBidAmount(uint256 _auctionId) public view returns(uint256) {
+        return initialBidAmount[_auctionId];
     }
 
     /// Bid on the auction with the value sent
@@ -1177,6 +1177,12 @@ contract SimpleAuction is Ownable{
         require(
             block.timestamp <= auctionEndTime[_auctionId],
             "Auction already ended."
+        );
+
+        // Require price to be more than initial bid amount
+        require(
+            msg.value > initialBidAmount[_auctionId],
+            "Please bid an amount > initialBidAmount"
         );
 
         // If the bid is not higher, send the

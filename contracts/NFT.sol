@@ -13,14 +13,6 @@ contract NFT is NFTokenMetadata, Ownable {
         nftSymbol = "ARFT";
         tokenCounter = 0;
     }
-    
-    function setTokenCounter(uint256 _cntr) public {
-        tokenCounter = _cntr;
-    }
-    
-    function getTokenCounter() public view returns (uint256) {
-        return tokenCounter;
-    }
 
     function disableToken(uint256 _tokenId) public onlyOwner {
         blockedTokenId[_tokenId] = true;

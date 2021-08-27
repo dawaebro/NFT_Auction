@@ -1058,7 +1058,6 @@ contract Ownable
 
 // File contracts/NFT.sol
 
-
 contract NFT is NFTokenMetadata, Ownable {
     
     uint256 internal tokenCounter = 0;
@@ -1067,14 +1066,6 @@ contract NFT is NFTokenMetadata, Ownable {
         nftName = "ART NFT";
         nftSymbol = "ARFT";
         tokenCounter = 0;
-    }
-    
-    function setTokenCounter(uint256 _cntr) public {
-        tokenCounter = _cntr;
-    }
-    
-    function getTokenCounter() public view returns (uint256) {
-        return tokenCounter;
     }
 
     function disableToken(uint256 _tokenId) public onlyOwner {

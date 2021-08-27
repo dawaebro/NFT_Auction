@@ -214,19 +214,6 @@ var nftcontract = web3.eth.contract(
 		  "type": "function"
 		},
 		{
-		  "inputs": [],
-		  "name": "getTokenCounter",
-		  "outputs": [
-			{
-			  "internalType": "uint256",
-			  "name": "",
-			  "type": "uint256"
-			}
-		  ],
-		  "stateMutability": "view",
-		  "type": "function"
-		},
-		{
 		  "inputs": [
 			{
 			  "internalType": "address",
@@ -384,19 +371,6 @@ var nftcontract = web3.eth.contract(
 			}
 		  ],
 		  "name": "setApprovalForAll",
-		  "outputs": [],
-		  "stateMutability": "nonpayable",
-		  "type": "function"
-		},
-		{
-		  "inputs": [
-			{
-			  "internalType": "uint256",
-			  "name": "_cntr",
-			  "type": "uint256"
-			}
-		  ],
-		  "name": "setTokenCounter",
 		  "outputs": [],
 		  "stateMutability": "nonpayable",
 		  "type": "function"
@@ -601,6 +575,25 @@ var simpleAuctionABI = web3.eth.contract(
 		  "type": "function"
 		},
 		{
+		  "inputs": [
+			{
+			  "internalType": "uint256",
+			  "name": "_auctionId",
+			  "type": "uint256"
+			}
+		  ],
+		  "name": "getInitialBidAmount",
+		  "outputs": [
+			{
+			  "internalType": "uint256",
+			  "name": "",
+			  "type": "uint256"
+			}
+		  ],
+		  "stateMutability": "view",
+		  "type": "function"
+		},
+		{
 		  "inputs": [],
 		  "name": "owner",
 		  "outputs": [
@@ -630,6 +623,11 @@ var simpleAuctionABI = web3.eth.contract(
 			{
 			  "internalType": "uint256",
 			  "name": "_tokenId",
+			  "type": "uint256"
+			},
+			{
+			  "internalType": "uint256",
+			  "name": "_initialBidAmount",
 			  "type": "uint256"
 			},
 			{
@@ -678,10 +676,10 @@ var simpleAuctionABI = web3.eth.contract(
 	  ]
 );
 
-var contractAddress = "0x43D525aF21B9402650b694e6282073A394Abf601"; // Change this to ropsten test address
+var contractAddress = "0x8aE6342917a99CBbdF9A523f95211e7506308ED4"; // Change this to ropsten test address
 var NFT = nftcontract.at(contractAddress);
 
-var simpleAuctionAddress = "0xF660C945dBfe725B2AC58F0a4317BBDcFC2C2183";
+var simpleAuctionAddress = "0xbC33E30253380F74b5a9b156a6fFBb0a3dC10F07";
 var auction = simpleAuctionABI.at(simpleAuctionAddress);
 
 

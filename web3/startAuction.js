@@ -1,5 +1,5 @@
 
-function startAuction(_auctionId, _tokenId, _beneficiary)
+function startAuction(_auctionId, _tokenId, _initialBidAmount, _beneficiary)
 {
 	if(!web3.isConnected()) {
 		console.log("Please connect to Metamask.");
@@ -19,9 +19,9 @@ function startAuction(_auctionId, _tokenId, _beneficiary)
 		return;
 	}
 
-    auction.startAuction.estimateGas(_auctionId, _tokenId, _beneficiary, function(error, result) {
+    auction.startAuction.estimateGas(_auctionId, _tokenId, _initialBidAmount, _beneficiary, function(error, result) {
         if (!error) {
-            auction.startAuction(_auctionId, _tokenId, _beneficiary, function(error, result)
+            auction.startAuction(_auctionId, _tokenId, _initialBidAmount, _beneficiary, function(error, result)
 			{
 				if (!error)
 				{
