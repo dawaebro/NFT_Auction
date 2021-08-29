@@ -26,7 +26,7 @@ contract SimpleAuction is Ownable{
     uint256 internal additional30Mins = 60 * 30;
 
     // uint public auctionEndTime;
-    mapping(uint256 => uint) auctionEndTime;
+    mapping(uint256 => uint) public auctionEndTime;
 
     // Current state of the auction.
     // address public highestBidder;

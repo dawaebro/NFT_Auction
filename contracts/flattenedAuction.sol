@@ -2,8 +2,9 @@
 
 // File @openzeppelin/contracts/utils/Context.sol@v4.2.0
 
-
 pragma solidity ^0.8.0;
+
+
 
 /*
  * @dev Provides information about the current execution context, including the
@@ -27,6 +28,7 @@ abstract contract Context {
 
 
 // File @openzeppelin/contracts/access/Ownable.sol@v4.2.0
+
 
 
 
@@ -99,6 +101,7 @@ abstract contract Ownable is Context {
 
 
 // File @0xcert/ethereum-erc721/src/contracts/tokens/erc721.sol@v2.4.0
+
 
 
 
@@ -281,6 +284,7 @@ interface ERC721
 
 
 
+
 /**
  * @dev ERC-721 interface for accepting safe transfers.
  * See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md.
@@ -317,6 +321,7 @@ interface ERC721TokenReceiver
 
 
 
+
 /**
  * @dev A standard for detecting smart contract interfaces. 
  * See: https://eips.ethereum.org/EIPS/eip-165.
@@ -341,6 +346,7 @@ interface ERC165
 
 
 // File @0xcert/ethereum-erc721/src/contracts/utils/supports-interface.sol@v2.4.0
+
 
 
 
@@ -387,6 +393,7 @@ contract SupportsInterface is
 
 
 
+
 /**
  * @dev Utility library of inline functions on addresses.
  * @notice Based on:
@@ -425,6 +432,7 @@ library AddressUtils
 
 
 // File @0xcert/ethereum-erc721/src/contracts/tokens/nf-token.sol@v2.4.0
+
 
 
 
@@ -914,6 +922,7 @@ contract NFToken is
 
 
 
+
 /**
  * @dev Optional metadata extension for ERC-721 non-fungible token standard.
  * See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md.
@@ -954,6 +963,7 @@ interface ERC721Metadata
 
 
 // File @0xcert/ethereum-erc721/src/contracts/tokens/nf-token-metadata.sol@v2.4.0
+
 
 
 
@@ -1079,6 +1089,7 @@ contract NFTokenMetadata is
 
 // File contracts/Auction.sol
 
+
 // import "NFT.sol";
 
 contract SimpleAuction is Ownable{
@@ -1103,7 +1114,7 @@ contract SimpleAuction is Ownable{
     uint256 internal additional30Mins = 60 * 30;
 
     // uint public auctionEndTime;
-    mapping(uint256 => uint) auctionEndTime;
+    mapping(uint256 => uint) public auctionEndTime;
 
     // Current state of the auction.
     // address public highestBidder;
