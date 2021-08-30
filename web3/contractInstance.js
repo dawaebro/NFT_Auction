@@ -245,6 +245,11 @@ var nftcontract = web3.eth.contract(
 			  "type": "address"
 			},
 			{
+			  "internalType": "uint256",
+			  "name": "_royalty",
+			  "type": "uint256"
+			},
+			{
 			  "internalType": "string",
 			  "name": "_uri",
 			  "type": "string"
@@ -269,6 +274,25 @@ var nftcontract = web3.eth.contract(
 			  "internalType": "string",
 			  "name": "_name",
 			  "type": "string"
+			}
+		  ],
+		  "stateMutability": "view",
+		  "type": "function"
+		},
+		{
+		  "inputs": [
+			{
+			  "internalType": "uint256",
+			  "name": "",
+			  "type": "uint256"
+			}
+		  ],
+		  "name": "originalOwner",
+		  "outputs": [
+			{
+			  "internalType": "address",
+			  "name": "",
+			  "type": "address"
 			}
 		  ],
 		  "stateMutability": "view",
@@ -301,6 +325,25 @@ var nftcontract = web3.eth.contract(
 			  "internalType": "address",
 			  "name": "_owner",
 			  "type": "address"
+			}
+		  ],
+		  "stateMutability": "view",
+		  "type": "function"
+		},
+		{
+		  "inputs": [
+			{
+			  "internalType": "uint256",
+			  "name": "",
+			  "type": "uint256"
+			}
+		  ],
+		  "name": "royalties",
+		  "outputs": [
+			{
+			  "internalType": "uint256",
+			  "name": "",
+			  "type": "uint256"
 			}
 		  ],
 		  "stateMutability": "view",
@@ -470,7 +513,7 @@ var simpleAuctionABI = web3.eth.contract(
 		{
 		  "inputs": [
 			{
-			  "internalType": "contract NFTokenMetadata",
+			  "internalType": "address",
 			  "name": "_addressOfNFT",
 			  "type": "address"
 			}
@@ -536,6 +579,32 @@ var simpleAuctionABI = web3.eth.contract(
 		  "type": "event"
 		},
 		{
+		  "inputs": [],
+		  "name": "CANNOT_TRANSFER_TO_ZERO_ADDRESS",
+		  "outputs": [
+			{
+			  "internalType": "string",
+			  "name": "",
+			  "type": "string"
+			}
+		  ],
+		  "stateMutability": "view",
+		  "type": "function"
+		},
+		{
+		  "inputs": [],
+		  "name": "NOT_CURRENT_OWNER",
+		  "outputs": [
+			{
+			  "internalType": "string",
+			  "name": "",
+			  "type": "string"
+			}
+		  ],
+		  "stateMutability": "view",
+		  "type": "function"
+		},
+		{
 		  "inputs": [
 			{
 			  "internalType": "uint256",
@@ -546,6 +615,25 @@ var simpleAuctionABI = web3.eth.contract(
 		  "name": "auctionEnd",
 		  "outputs": [],
 		  "stateMutability": "nonpayable",
+		  "type": "function"
+		},
+		{
+		  "inputs": [
+			{
+			  "internalType": "uint256",
+			  "name": "",
+			  "type": "uint256"
+			}
+		  ],
+		  "name": "auctionEndTime",
+		  "outputs": [
+			{
+			  "internalType": "uint256",
+			  "name": "",
+			  "type": "uint256"
+			}
+		  ],
+		  "stateMutability": "view",
 		  "type": "function"
 		},
 		{
@@ -594,8 +682,33 @@ var simpleAuctionABI = web3.eth.contract(
 		  "type": "function"
 		},
 		{
-		  "inputs": [],
-		  "name": "owner",
+		  "inputs": [
+			{
+			  "internalType": "uint256",
+			  "name": "",
+			  "type": "uint256"
+			}
+		  ],
+		  "name": "highestBid",
+		  "outputs": [
+			{
+			  "internalType": "uint256",
+			  "name": "",
+			  "type": "uint256"
+			}
+		  ],
+		  "stateMutability": "view",
+		  "type": "function"
+		},
+		{
+		  "inputs": [
+			{
+			  "internalType": "uint256",
+			  "name": "",
+			  "type": "uint256"
+			}
+		  ],
+		  "name": "highestBidder",
 		  "outputs": [
 			{
 			  "internalType": "address",
@@ -608,9 +721,15 @@ var simpleAuctionABI = web3.eth.contract(
 		},
 		{
 		  "inputs": [],
-		  "name": "renounceOwnership",
-		  "outputs": [],
-		  "stateMutability": "nonpayable",
+		  "name": "owner",
+		  "outputs": [
+			{
+			  "internalType": "address",
+			  "name": "",
+			  "type": "address"
+			}
+		  ],
+		  "stateMutability": "view",
 		  "type": "function"
 		},
 		{
@@ -645,7 +764,7 @@ var simpleAuctionABI = web3.eth.contract(
 		  "inputs": [
 			{
 			  "internalType": "address",
-			  "name": "newOwner",
+			  "name": "_newOwner",
 			  "type": "address"
 			}
 		  ],
@@ -676,10 +795,10 @@ var simpleAuctionABI = web3.eth.contract(
 	  ]
 );
 
-var contractAddress = "0x8aE6342917a99CBbdF9A523f95211e7506308ED4"; // Change this to ropsten test address
+var contractAddress = "0x35b2d73fC1DAf827A3a117624f898Db1E46E9eee"; // Change this to ropsten test address
 var NFT = nftcontract.at(contractAddress);
 
-var simpleAuctionAddress = "0xbC33E30253380F74b5a9b156a6fFBb0a3dC10F07";
+var simpleAuctionAddress = "0x3C53661Af877573e02F0E7680EF6749D9f16f9E1";
 var auction = simpleAuctionABI.at(simpleAuctionAddress);
 
 

@@ -1,108 +1,8 @@
 // Sources flattened with hardhat v2.6.0 https://hardhat.org
 
-// File @openzeppelin/contracts/utils/Context.sol@v4.2.0
-
-pragma solidity ^0.8.0;
-
-
-
-/*
- * @dev Provides information about the current execution context, including the
- * sender of the transaction and its data. While these are generally available
- * via msg.sender and msg.data, they should not be accessed in such a direct
- * manner, since when dealing with meta-transactions the account sending and
- * paying for execution may not be the actual sender (as far as an application
- * is concerned).
- *
- * This contract is only required for intermediate, library-like contracts.
- */
-abstract contract Context {
-    function _msgSender() internal view virtual returns (address) {
-        return msg.sender;
-    }
-
-    function _msgData() internal view virtual returns (bytes calldata) {
-        return msg.data;
-    }
-}
-
-
-// File @openzeppelin/contracts/access/Ownable.sol@v4.2.0
-
-
-
-
-
-/**
- * @dev Contract module which provides a basic access control mechanism, where
- * there is an account (an owner) that can be granted exclusive access to
- * specific functions.
- *
- * By default, the owner account will be the one that deploys the contract. This
- * can later be changed with {transferOwnership}.
- *
- * This module is used through inheritance. It will make available the modifier
- * `onlyOwner`, which can be applied to your functions to restrict their use to
- * the owner.
- */
-abstract contract Ownable is Context {
-    address private _owner;
-
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
-    /**
-     * @dev Initializes the contract setting the deployer as the initial owner.
-     */
-    constructor() {
-        _setOwner(_msgSender());
-    }
-
-    /**
-     * @dev Returns the address of the current owner.
-     */
-    function owner() public view virtual returns (address) {
-        return _owner;
-    }
-
-    /**
-     * @dev Throws if called by any account other than the owner.
-     */
-    modifier onlyOwner() {
-        require(owner() == _msgSender(), "Ownable: caller is not the owner");
-        _;
-    }
-
-    /**
-     * @dev Leaves the contract without owner. It will not be possible to call
-     * `onlyOwner` functions anymore. Can only be called by the current owner.
-     *
-     * NOTE: Renouncing ownership will leave the contract without an owner,
-     * thereby removing any functionality that is only available to the owner.
-     */
-    function renounceOwnership() public virtual onlyOwner {
-        _setOwner(address(0));
-    }
-
-    /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
-     * Can only be called by the current owner.
-     */
-    function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
-        _setOwner(newOwner);
-    }
-
-    function _setOwner(address newOwner) private {
-        address oldOwner = _owner;
-        _owner = newOwner;
-        emit OwnershipTransferred(oldOwner, newOwner);
-    }
-}
-
-
 // File @0xcert/ethereum-erc721/src/contracts/tokens/erc721.sol@v2.4.0
 
-
+pragma solidity ^0.8.0;
 
 
 /**
@@ -1087,6 +987,123 @@ contract NFTokenMetadata is
 }
 
 
+// File @0xcert/ethereum-erc721/src/contracts/ownership/ownable.sol@v2.4.0
+
+
+
+
+/**
+ * @dev The contract has an owner address, and provides basic authorization control whitch
+ * simplifies the implementation of user permissions. This contract is based on the source code at:
+ * https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/ownership/Ownable.sol
+ */
+contract Ownable
+{
+
+  /**
+   * @dev Error constants.
+   */
+  string public constant NOT_CURRENT_OWNER = "018001";
+  string public constant CANNOT_TRANSFER_TO_ZERO_ADDRESS = "018002";
+
+  /**
+   * @dev Current owner address.
+   */
+  address public owner;
+
+  /**
+   * @dev An event which is triggered when the owner is changed.
+   * @param previousOwner The address of the previous owner.
+   * @param newOwner The address of the new owner.
+   */
+  event OwnershipTransferred(
+    address indexed previousOwner,
+    address indexed newOwner
+  );
+
+  /**
+   * @dev The constructor sets the original `owner` of the contract to the sender account.
+   */
+  constructor()
+  {
+    owner = msg.sender;
+  }
+
+  /**
+   * @dev Throws if called by any account other than the owner.
+   */
+  modifier onlyOwner()
+  {
+    require(msg.sender == owner, NOT_CURRENT_OWNER);
+    _;
+  }
+
+  /**
+   * @dev Allows the current owner to transfer control of the contract to a newOwner.
+   * @param _newOwner The address to transfer ownership to.
+   */
+  function transferOwnership(
+    address _newOwner
+  )
+    public
+    onlyOwner
+  {
+    require(_newOwner != address(0), CANNOT_TRANSFER_TO_ZERO_ADDRESS);
+    emit OwnershipTransferred(owner, _newOwner);
+    owner = _newOwner;
+  }
+
+}
+
+
+// File contracts/NFT.sol
+
+
+contract NFT is NFTokenMetadata, Ownable {
+    
+    uint256 internal tokenCounter = 0;
+    mapping(uint256 => address) public originalOwner;
+    mapping(uint256 => uint256) public royalties;
+    
+    constructor () {
+        nftName = "ART NFT";
+        nftSymbol = "ARFT";
+        tokenCounter = 0;
+    }
+
+    function disableToken(uint256 _tokenId) public onlyOwner {
+        blockedTokenId[_tokenId] = true;
+    }
+    
+    
+    /*
+    * @dev Mints a new NFT.
+    * @param _to The address that will own the minted NFT.
+    * @param _tokenId of the NFT to be minted by the msg.sender.
+    * @param _uri String representing RFC 3986 URI.
+    */
+    function mint(
+    address _to,
+    uint256 _royalty,
+    string calldata _uri
+    ) 
+    external
+    returns (uint256)
+    {
+        require(_royalty > 10 && _royalty < 30, "Royalty can be between 10 and 30 % only");
+        uint256 mintedTokenId = tokenCounter;
+        super._mint(_to, tokenCounter);
+        super._setTokenUri(tokenCounter, _uri);
+        originalOwner[mintedTokenId] = _to;
+        royalties[mintedTokenId] = _royalty;
+        tokenCounter += 1;
+        return mintedTokenId;
+    }
+    
+   
+}
+
+
 // File contracts/Auction.sol
 
 
@@ -1094,8 +1111,15 @@ contract NFTokenMetadata is
 
 contract SimpleAuction is Ownable{
 
+    //modifiable variables
+    uint256 internal secondsInDay = 60;
+    // uint256 internal secondsInDay = 86400;
+    uint256 internal last15Minutes = 60 * 15;
+    uint256 internal additional15Mins = 60 * 15;
+    uint256 internal nftPlatformShare = 15; // 15 percent of sale value. 
+
 	// Keep auction ID and map all fields to that to handle multiple auctions
-    NFToken _nft;
+    NFT _nft;
     mapping(uint256 => address) tokenOwner;
     mapping(uint256 => uint256) tokenId;
 
@@ -1107,11 +1131,6 @@ contract SimpleAuction is Ownable{
 
     // mapping to hold initial bid amount
     mapping(uint256 => uint256) initialBidAmount;
-    
-    uint256 internal secondsInDay = 60;
-    // uint256 internal secondsInDay = 86400;
-    uint256 internal last15Minutes = 60 * 15;
-    uint256 internal additional30Mins = 60 * 30;
 
     // uint public auctionEndTime;
     mapping(uint256 => uint) public auctionEndTime;
@@ -1119,8 +1138,8 @@ contract SimpleAuction is Ownable{
     // Current state of the auction.
     // address public highestBidder;
     // uint public highestBid;
-    mapping(uint256 => address) highestBidder;
-    mapping(uint256 => uint) highestBid;
+    mapping(uint256 => address) public highestBidder;
+    mapping(uint256 => uint) public highestBid;
 
     // Allowed withdrawals of previous bids
     // mapping(address => uint) pendingReturns;
@@ -1139,8 +1158,8 @@ contract SimpleAuction is Ownable{
     // recognizable by the three slashes.
     // It will be shown when the user is asked to
     // confirm a transaction.
-    constructor(NFTokenMetadata _addressOfNFT) {
-        _nft = _addressOfNFT;
+    constructor(address _addressOfNFT) {
+        _nft = NFT(_addressOfNFT);
     }
 
     /// Create a simple auction with `_biddingTime`
@@ -1183,6 +1202,9 @@ contract SimpleAuction is Ownable{
         // Check if auction ended
         require(!ended[_auctionId], "auctionEnd has already been called.");
 
+        // Check if last 1 minute
+        require(block.timestamp < auctionEndTime[_auctionId] - 60, "Last one minute remaining. Not accepting any bids");
+
         // Revert the call if the bidding
         // period is over.
         require(
@@ -1219,7 +1241,7 @@ contract SimpleAuction is Ownable{
 
         // if time to end is less
         if (auctionEndTime[_auctionId] < block.timestamp + last15Minutes) {
-            auctionEndTime[_auctionId] = auctionEndTime[_auctionId] + additional30Mins;
+            auctionEndTime[_auctionId] = auctionEndTime[_auctionId] + additional15Mins;
         }
 
 
@@ -1255,7 +1277,20 @@ contract SimpleAuction is Ownable{
         emit AuctionEnded(highestBidder[_auctionId], highestBid[_auctionId]);
 
         // 3. Interaction
-        beneficiary[_auctionId].transfer(highestBid[_auctionId]);
+        // Calculate amount for nft Platform
+        uint256 nftPlatformAmount = (highestBid[_auctionId] * nftPlatformShare) / 100;
+        uint256 originalOwnerShare = 0;
+        if (_nft.originalOwner(tokenId[_auctionId]) != tokenOwner[_auctionId]) { // second sale or above. 
+            originalOwnerShare = (highestBid[_auctionId] * _nft.royalties(tokenId[_auctionId])) / 100;
+            // trnasfer original owner share
+        }
+        // transfer all amounts. 
+        payable(_nft.owner()).transfer(nftPlatformAmount);
+        if (originalOwnerShare != 0) {
+            payable(_nft.originalOwner(tokenId[_auctionId])).transfer(originalOwnerShare);
+        }
+        beneficiary[_auctionId].transfer(highestBid[_auctionId] - originalOwnerShare - nftPlatformAmount);
+        // beneficiary[_auctionId].transfer(highestBid[_auctionId]);
         
         // 4. Transfer NFT to winner
         _nft.transferFrom(tokenOwner[_auctionId], msg.sender, tokenId[_auctionId]);

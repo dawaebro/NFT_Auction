@@ -1,13 +1,20 @@
 pragma solidity >=0.7.0 <0.9.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@0xcert/ethereum-erc721/src/contracts/tokens/nf-token-metadata.sol";
+import "./NFT.sol";
 // import "NFT.sol";
 
 contract SimpleAuction is Ownable{
 
+    //modifiable variables
+    uint256 internal secondsInDay = 60;
+    // uint256 internal secondsInDay = 86400;
+    uint256 internal last15Minutes = 60 * 15;
+    uint256 internal additional15Mins = 60 * 15;
+    uint256 internal nftPlatformShare = 15; // 15 percent of sale value. 
+
 	// Keep auction ID and map all fields to that to handle multiple auctions
-    NFToken _nft;
+    NFT _nft;
     mapping(uint256 => address) tokenOwner;
     mapping(uint256 => uint256) tokenId;
 
@@ -19,11 +26,6 @@ contract SimpleAuction is Ownable{
 
     // mapping to hold initial bid amount
     mapping(uint256 => uint256) initialBidAmount;
-    
-    uint256 internal secondsInDay = 60;
-    // uint256 internal secondsInDay = 86400;
-    uint256 internal last15Minutes = 60 * 15;
-    uint256 internal additional30Mins = 60 * 30;
 
     // uint public auctionEndTime;
     mapping(uint256 => uint) public auctionEndTime;
@@ -31,8 +33,8 @@ contract SimpleAuction is Ownable{
     // Current state of the auction.
     // address public highestBidder;
     // uint public highestBid;
-    mapping(uint256 => address) highestBidder;
-    mapping(uint256 => uint) highestBid;
+    mapping(uint256 => address) public highestBidder;
+    mapping(uint256 => uint) public highestBid;
 
     // Allowed withdrawals of previous bids
     // mapping(address => uint) pendingReturns;
@@ -51,8 +53,8 @@ contract SimpleAuction is Ownable{
     // recognizable by the three slashes.
     // It will be shown when the user is asked to
     // confirm a transaction.
-    constructor(NFTokenMetadata _addressOfNFT) {
-        _nft = _addressOfNFT;
+    constructor(address _addressOfNFT) {
+        _nft = NFT(_addressOfNFT);
     }
 
     /// Create a simple auction with `_biddingTime`
@@ -95,6 +97,9 @@ contract SimpleAuction is Ownable{
         // Check if auction ended
         require(!ended[_auctionId], "auctionEnd has already been called.");
 
+        // Check if last 1 minute
+        require(block.timestamp < auctionEndTime[_auctionId] - 60, "Last one minute remaining. Not accepting any bids");
+
         // Revert the call if the bidding
         // period is over.
         require(
@@ -131,7 +136,7 @@ contract SimpleAuction is Ownable{
 
         // if time to end is less
         if (auctionEndTime[_auctionId] < block.timestamp + last15Minutes) {
-            auctionEndTime[_auctionId] = auctionEndTime[_auctionId] + additional30Mins;
+            auctionEndTime[_auctionId] = auctionEndTime[_auctionId] + additional15Mins;
         }
 
 
@@ -167,7 +172,20 @@ contract SimpleAuction is Ownable{
         emit AuctionEnded(highestBidder[_auctionId], highestBid[_auctionId]);
 
         // 3. Interaction
-        beneficiary[_auctionId].transfer(highestBid[_auctionId]);
+        // Calculate amount for nft Platform
+        uint256 nftPlatformAmount = (highestBid[_auctionId] * nftPlatformShare) / 100;
+        uint256 originalOwnerShare = 0;
+        if (_nft.originalOwner(tokenId[_auctionId]) != tokenOwner[_auctionId]) { // second sale or above. 
+            originalOwnerShare = (highestBid[_auctionId] * _nft.royalties(tokenId[_auctionId])) / 100;
+            // trnasfer original owner share
+        }
+        // transfer all amounts. 
+        payable(_nft.owner()).transfer(nftPlatformAmount);
+        if (originalOwnerShare != 0) {
+            payable(_nft.originalOwner(tokenId[_auctionId])).transfer(originalOwnerShare);
+        }
+        beneficiary[_auctionId].transfer(highestBid[_auctionId] - originalOwnerShare - nftPlatformAmount);
+        // beneficiary[_auctionId].transfer(highestBid[_auctionId]);
         
         // 4. Transfer NFT to winner
         _nft.transferFrom(tokenOwner[_auctionId], msg.sender, tokenId[_auctionId]);
