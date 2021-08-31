@@ -17,6 +17,7 @@ contract SimpleAuction is Ownable{
     NFT _nft;
     mapping(uint256 => address) tokenOwner;
     mapping(uint256 => uint256) tokenId;
+    mapping(uint256 => bool) firstBidDone;
 
     // Parameters of the auction. Times are either
     // absolute unix timestamps (seconds since 1970-01-01)
@@ -139,6 +140,11 @@ contract SimpleAuction is Ownable{
             auctionEndTime[_auctionId] = auctionEndTime[_auctionId] + additional15Mins;
         }
 
+        // If this is the first bid
+        if (!firstBidDone[_auctionId]) {
+            firstBidDone[_auctionId] = true;
+            auctionEndTime[_auctionId] = block.timestamp + secondsInDay * 3;
+        }
 
         emit HighestBidIncreased(msg.sender, msg.value);
     }
@@ -176,7 +182,7 @@ contract SimpleAuction is Ownable{
         uint256 nftPlatformAmount = (highestBid[_auctionId] * nftPlatformShare) / 100;
         uint256 originalOwnerShare = 0;
         if (_nft.originalOwner(tokenId[_auctionId]) != tokenOwner[_auctionId]) { // second sale or above. 
-            originalOwnerShare = (highestBid[_auctionId] * _nft.royalties(tokenId[_auctionId])) / 100;
+            originalOwnerShare = (highestBid[_auctionId] * _nft.royalty()) / 100;
             // trnasfer original owner share
         }
         // transfer all amounts. 

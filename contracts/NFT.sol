@@ -8,7 +8,7 @@ contract NFT is NFTokenMetadata, Ownable {
     
     uint256 internal tokenCounter = 0;
     mapping(uint256 => address) public originalOwner;
-    mapping(uint256 => uint256) public royalties;
+    uint256 public royalty = 10; // 10 % for creator/originalOwner
     
     constructor () {
         nftName = "ART NFT";
@@ -29,18 +29,15 @@ contract NFT is NFTokenMetadata, Ownable {
     */
     function mint(
     address _to,
-    uint256 _royalty,
     string calldata _uri
     ) 
     external
     returns (uint256)
     {
-        require(_royalty > 10 && _royalty < 30, "Royalty can be between 10 and 30 % only");
         uint256 mintedTokenId = tokenCounter;
         super._mint(_to, tokenCounter);
         super._setTokenUri(tokenCounter, _uri);
         originalOwner[mintedTokenId] = _to;
-        royalties[mintedTokenId] = _royalty;
         tokenCounter += 1;
         return mintedTokenId;
     }

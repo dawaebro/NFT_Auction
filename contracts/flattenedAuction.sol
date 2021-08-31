@@ -2,8 +2,8 @@
 
 // File @0xcert/ethereum-erc721/src/contracts/tokens/erc721.sol@v2.4.0
 
-pragma solidity ^0.8.0;
 
+pragma solidity ^0.8.0;
 
 /**
  * @dev ERC-721 non-fungible token standard.
@@ -1063,7 +1063,7 @@ contract NFT is NFTokenMetadata, Ownable {
     
     uint256 internal tokenCounter = 0;
     mapping(uint256 => address) public originalOwner;
-    mapping(uint256 => uint256) public royalties;
+    uint256 public royalty = 10; // 10 % for creator/originalOwner
     
     constructor () {
         nftName = "ART NFT";
@@ -1084,18 +1084,15 @@ contract NFT is NFTokenMetadata, Ownable {
     */
     function mint(
     address _to,
-    uint256 _royalty,
     string calldata _uri
     ) 
     external
     returns (uint256)
     {
-        require(_royalty > 10 && _royalty < 30, "Royalty can be between 10 and 30 % only");
         uint256 mintedTokenId = tokenCounter;
         super._mint(_to, tokenCounter);
         super._setTokenUri(tokenCounter, _uri);
         originalOwner[mintedTokenId] = _to;
-        royalties[mintedTokenId] = _royalty;
         tokenCounter += 1;
         return mintedTokenId;
     }
@@ -1122,6 +1119,7 @@ contract SimpleAuction is Ownable{
     NFT _nft;
     mapping(uint256 => address) tokenOwner;
     mapping(uint256 => uint256) tokenId;
+    mapping(uint256 => bool) firstBidDone;
 
     // Parameters of the auction. Times are either
     // absolute unix timestamps (seconds since 1970-01-01)
@@ -1244,6 +1242,11 @@ contract SimpleAuction is Ownable{
             auctionEndTime[_auctionId] = auctionEndTime[_auctionId] + additional15Mins;
         }
 
+        // If this is the first bid
+        if (!firstBidDone[_auctionId]) {
+            firstBidDone[_auctionId] = true;
+            auctionEndTime[_auctionId] = block.timestamp + secondsInDay * 3;
+        }
 
         emit HighestBidIncreased(msg.sender, msg.value);
     }
@@ -1281,7 +1284,7 @@ contract SimpleAuction is Ownable{
         uint256 nftPlatformAmount = (highestBid[_auctionId] * nftPlatformShare) / 100;
         uint256 originalOwnerShare = 0;
         if (_nft.originalOwner(tokenId[_auctionId]) != tokenOwner[_auctionId]) { // second sale or above. 
-            originalOwnerShare = (highestBid[_auctionId] * _nft.royalties(tokenId[_auctionId])) / 100;
+            originalOwnerShare = (highestBid[_auctionId] * _nft.royalty()) / 100;
             // trnasfer original owner share
         }
         // transfer all amounts. 

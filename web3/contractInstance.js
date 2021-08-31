@@ -245,11 +245,6 @@ var nftcontract = web3.eth.contract(
 			  "type": "address"
 			},
 			{
-			  "internalType": "uint256",
-			  "name": "_royalty",
-			  "type": "uint256"
-			},
-			{
 			  "internalType": "string",
 			  "name": "_uri",
 			  "type": "string"
@@ -331,14 +326,8 @@ var nftcontract = web3.eth.contract(
 		  "type": "function"
 		},
 		{
-		  "inputs": [
-			{
-			  "internalType": "uint256",
-			  "name": "",
-			  "type": "uint256"
-			}
-		  ],
-		  "name": "royalties",
+		  "inputs": [],
+		  "name": "royalty",
 		  "outputs": [
 			{
 			  "internalType": "uint256",
@@ -795,10 +784,10 @@ var simpleAuctionABI = web3.eth.contract(
 	  ]
 );
 
-var contractAddress = "0x35b2d73fC1DAf827A3a117624f898Db1E46E9eee"; // Change this to ropsten test address
+var contractAddress = "0x40cAf67018B5F28489Cbd44819C6A5Afb81B0030"; // Change this to ropsten test address
 var NFT = nftcontract.at(contractAddress);
 
-var simpleAuctionAddress = "0x3C53661Af877573e02F0E7680EF6749D9f16f9E1";
+var simpleAuctionAddress = "0x34120A3fb8a24c30A82b3037d47f00903aD4d0D0";
 var auction = simpleAuctionABI.at(simpleAuctionAddress);
 
 
