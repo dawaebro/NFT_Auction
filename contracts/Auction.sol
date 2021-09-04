@@ -7,7 +7,7 @@ import "./NFT.sol";
 contract SimpleAuction is Ownable{
 
     //modifiable variables
-    uint256 internal secondsInDay = 60 * 10;
+    uint256 internal secondsInDay = 60 * 2;
     // uint256 internal secondsInDay = 86400;
     uint256 internal last15Minutes = 60 * 15;
     uint256 internal additional15Mins = 60 * 15;
