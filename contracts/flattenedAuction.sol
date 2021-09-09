@@ -1101,6 +1101,178 @@ contract NFT is NFTokenMetadata, Ownable {
 }
 
 
+// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.2.0
+
+
+
+
+
+/**
+ * @dev Interface of the ERC165 standard, as defined in the
+ * https://eips.ethereum.org/EIPS/eip-165[EIP].
+ *
+ * Implementers can declare support of contract interfaces, which can then be
+ * queried by others ({ERC165Checker}).
+ *
+ * For an implementation, see {ERC165}.
+ */
+interface IERC165 {
+    /**
+     * @dev Returns true if this contract implements the interface defined by
+     * `interfaceId`. See the corresponding
+     * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]
+     * to learn more about how these ids are created.
+     *
+     * This function call must use less than 30 000 gas.
+     */
+    function supportsInterface(bytes4 interfaceId) external view returns (bool);
+}
+
+
+// File @openzeppelin/contracts/token/ERC721/IERC721.sol@v4.2.0
+
+
+
+
+
+/**
+ * @dev Required interface of an ERC721 compliant contract.
+ */
+interface IERC721 is IERC165 {
+    /**
+     * @dev Emitted when `tokenId` token is transferred from `from` to `to`.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+
+    /**
+     * @dev Emitted when `owner` enables `approved` to manage the `tokenId` token.
+     */
+    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
+
+    /**
+     * @dev Emitted when `owner` enables or disables (`approved`) `operator` to manage all of its assets.
+     */
+    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+
+    /**
+     * @dev Returns the number of tokens in ``owner``'s account.
+     */
+    function balanceOf(address owner) external view returns (uint256 balance);
+
+    /**
+     * @dev Returns the owner of the `tokenId` token.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
+     */
+    function ownerOf(uint256 tokenId) external view returns (address owner);
+
+    /**
+     * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
+     * are aware of the ERC721 protocol to prevent tokens from being forever locked.
+     *
+     * Requirements:
+     *
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
+     * - `tokenId` token must exist and be owned by `from`.
+     * - If the caller is not `from`, it must be have been allowed to move this token by either {approve} or {setApprovalForAll}.
+     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+     *
+     * Emits a {Transfer} event.
+     */
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) external;
+
+    /**
+     * @dev Transfers `tokenId` token from `from` to `to`.
+     *
+     * WARNING: Usage of this method is discouraged, use {safeTransferFrom} whenever possible.
+     *
+     * Requirements:
+     *
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
+     * - `tokenId` token must be owned by `from`.
+     * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) external;
+
+    /**
+     * @dev Gives permission to `to` to transfer `tokenId` token to another account.
+     * The approval is cleared when the token is transferred.
+     *
+     * Only a single account can be approved at a time, so approving the zero address clears previous approvals.
+     *
+     * Requirements:
+     *
+     * - The caller must own the token or be an approved operator.
+     * - `tokenId` must exist.
+     *
+     * Emits an {Approval} event.
+     */
+    function approve(address to, uint256 tokenId) external;
+
+    /**
+     * @dev Returns the account approved for `tokenId` token.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
+     */
+    function getApproved(uint256 tokenId) external view returns (address operator);
+
+    /**
+     * @dev Approve or remove `operator` as an operator for the caller.
+     * Operators can call {transferFrom} or {safeTransferFrom} for any token owned by the caller.
+     *
+     * Requirements:
+     *
+     * - The `operator` cannot be the caller.
+     *
+     * Emits an {ApprovalForAll} event.
+     */
+    function setApprovalForAll(address operator, bool _approved) external;
+
+    /**
+     * @dev Returns if the `operator` is allowed to manage all of the assets of `owner`.
+     *
+     * See {setApprovalForAll}
+     */
+    function isApprovedForAll(address owner, address operator) external view returns (bool);
+
+    /**
+     * @dev Safely transfers `tokenId` token from `from` to `to`.
+     *
+     * Requirements:
+     *
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
+     * - `tokenId` token must exist and be owned by `from`.
+     * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
+     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+     *
+     * Emits a {Transfer} event.
+     */
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes calldata data
+    ) external;
+}
+
+
 // File contracts/Auction.sol
 
 
@@ -1117,18 +1289,20 @@ contract SimpleAuction is Ownable{
 
 	// Keep auction ID and map all fields to that to handle multiple auctions
     NFT _nft;
-    mapping(uint256 => address) tokenOwner;
-    mapping(uint256 => uint256) tokenId;
-    mapping(uint256 => bool) firstBidDone;
+    mapping(uint256 => IERC721) public nftAddress;
+    mapping(uint256 => bool) public ourNFT;
+    mapping(uint256 => address) public tokenOwner;
+    mapping(uint256 => uint256) public tokenId;
+    mapping(uint256 => bool) public firstBidDone;
 
     // Parameters of the auction. Times are either
     // absolute unix timestamps (seconds since 1970-01-01)
     // or time periods in seconds.
     // address payable public beneficiary;
-    mapping(uint256 => address payable) beneficiary;
+    mapping(uint256 => address payable) public beneficiary;
 
     // mapping to hold initial bid amount
-    mapping(uint256 => uint256) initialBidAmount;
+    mapping(uint256 => uint256) public initialBidAmount;
 
     // uint public auctionEndTime;
     mapping(uint256 => uint) public auctionEndTime;
@@ -1141,12 +1315,12 @@ contract SimpleAuction is Ownable{
 
     // Allowed withdrawals of previous bids
     // mapping(address => uint) pendingReturns;
-    mapping(uint256 => mapping(address => uint)) pendingReturns;
+    mapping(uint256 => mapping(address => uint)) public pendingReturns;
 
     // Set to true at the end, disallows any change.
     // By default initialized to `false`.
     // bool ended;
-    mapping(uint256 => bool) ended;
+    mapping(uint256 => bool) public ended;
 
     // Events that will be emitted on changes.
     event HighestBidIncreased(address bidder, uint amount);
@@ -1167,12 +1341,20 @@ contract SimpleAuction is Ownable{
         uint256 _auctionId,
         uint256 _tokenId,
         uint256 _initialBidAmount,
+        bool _ourNFT,
+        address _nftAddress,
         address payable _beneficiary
     ) public {
         require(msg.sender == _nft.ownerOf(_tokenId), "Only token owner can start auction for the tokenId");
+        nftAddress[_auctionId] = IERC721(_nftAddress);
+        ourNFT[_auctionId] = _ourNFT;
         beneficiary[_auctionId] = _beneficiary;
         auctionEndTime[_auctionId] = block.timestamp + secondsInDay * 3;
-        tokenOwner[_auctionId] = _nft.ownerOf(_tokenId);
+        if (ourNFT[_auctionId]) {
+            tokenOwner[_auctionId] = _nft.ownerOf(_tokenId);
+        } else {
+            tokenOwner[_auctionId] = nftAddress[_auctionId].ownerOf(_tokenId);
+        }
         initialBidAmount[_auctionId] = _initialBidAmount;
         tokenId[_auctionId] = _tokenId;
         _nft.setApprovalForAll(address(this), true);
@@ -1283,19 +1465,28 @@ contract SimpleAuction is Ownable{
         // Calculate amount for nft Platform
         uint256 nftPlatformAmount = (highestBid[_auctionId] * nftPlatformShare) / 100;
         uint256 originalOwnerShare = 0;
-        if (_nft.originalOwner(tokenId[_auctionId]) != tokenOwner[_auctionId]) { // second sale or above. 
-            originalOwnerShare = (highestBid[_auctionId] * _nft.royalty()) / 100;
-            // trnasfer original owner share
-        }
-        // transfer all amounts. 
-        payable(_nft.owner()).transfer(nftPlatformAmount);
-        if (originalOwnerShare != 0) {
-            payable(_nft.originalOwner(tokenId[_auctionId])).transfer(originalOwnerShare);
+        if (ourNFT[_auctionId]) {
+            if (_nft.originalOwner(tokenId[_auctionId]) != tokenOwner[_auctionId]) { // second sale or above. 
+                originalOwnerShare = (highestBid[_auctionId] * _nft.royalty()) / 100;
+                // trnasfer original owner share
+            }
+            // transfer all amounts. 
+            payable(_nft.owner()).transfer(nftPlatformAmount);
+            if (originalOwnerShare != 0) {
+                payable(_nft.originalOwner(tokenId[_auctionId])).transfer(originalOwnerShare);
+            }
+        } else {
+            // transfer all amounts. 
+            payable(_nft.owner()).transfer(nftPlatformAmount);
         }
         beneficiary[_auctionId].transfer(highestBid[_auctionId] - originalOwnerShare - nftPlatformAmount);
         // beneficiary[_auctionId].transfer(highestBid[_auctionId]);
         
         // 4. Transfer NFT to winner
-        _nft.transferFrom(tokenOwner[_auctionId], msg.sender, tokenId[_auctionId]);
+        if (ourNFT[_auctionId]) {
+            _nft.transferFrom(tokenOwner[_auctionId], msg.sender, tokenId[_auctionId]);
+        } else {
+            nftAddress[_auctionId].transferFrom(tokenOwner[_auctionId], msg.sender, tokenId[_auctionId]);
+        }
     }
 }

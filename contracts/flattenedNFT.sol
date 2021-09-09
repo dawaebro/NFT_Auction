@@ -2,7 +2,6 @@
 
 // File @0xcert/ethereum-erc721/src/contracts/tokens/erc721.sol@v2.4.0
 
-
 pragma solidity ^0.8.0;
 
 /**
@@ -182,8 +181,7 @@ interface ERC721
 
 // File @0xcert/ethereum-erc721/src/contracts/tokens/erc721-token-receiver.sol@v2.4.0
 
-
-
+pragma solidity ^0.8.0;
 
 /**
  * @dev ERC-721 interface for accepting safe transfers.
@@ -219,8 +217,7 @@ interface ERC721TokenReceiver
 
 // File @0xcert/ethereum-erc721/src/contracts/utils/erc165.sol@v2.4.0
 
-
-
+pragma solidity ^0.8.0;
 
 /**
  * @dev A standard for detecting smart contract interfaces. 
@@ -247,8 +244,7 @@ interface ERC165
 
 // File @0xcert/ethereum-erc721/src/contracts/utils/supports-interface.sol@v2.4.0
 
-
-
+pragma solidity ^0.8.0;
 
 /**
  * @dev Implementation of standard for detect smart contract interfaces.
@@ -291,8 +287,7 @@ contract SupportsInterface is
 
 // File @0xcert/ethereum-erc721/src/contracts/utils/address-utils.sol@v2.4.0
 
-
-
+pragma solidity ^0.8.0;
 
 /**
  * @dev Utility library of inline functions on addresses.
@@ -333,8 +328,7 @@ library AddressUtils
 
 // File @0xcert/ethereum-erc721/src/contracts/tokens/nf-token.sol@v2.4.0
 
-
-
+pragma solidity ^0.8.0;
 
 
 
@@ -820,8 +814,7 @@ contract NFToken is
 
 // File @0xcert/ethereum-erc721/src/contracts/tokens/erc721-metadata.sol@v2.4.0
 
-
-
+pragma solidity ^0.8.0;
 
 /**
  * @dev Optional metadata extension for ERC-721 non-fungible token standard.
@@ -864,8 +857,7 @@ interface ERC721Metadata
 
 // File @0xcert/ethereum-erc721/src/contracts/tokens/nf-token-metadata.sol@v2.4.0
 
-
-
+pragma solidity ^0.8.0;
 
 
 /**
@@ -989,8 +981,7 @@ contract NFTokenMetadata is
 
 // File @0xcert/ethereum-erc721/src/contracts/ownership/ownable.sol@v2.4.0
 
-
-
+pragma solidity ^0.8.0;
 
 /**
  * @dev The contract has an owner address, and provides basic authorization control whitch
@@ -1056,9 +1047,8 @@ contract Ownable
 }
 
 
-// File contracts/NFT.sol
-
-
+// File contracts/NFT.so
+pragma solidity ^0.8.0;
 contract NFT is NFTokenMetadata, Ownable {
     
     uint256 internal tokenCounter = 0;
