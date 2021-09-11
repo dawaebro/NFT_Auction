@@ -105,6 +105,12 @@ contract SimpleAuction is Ownable{
         // the transaction. The keyword payable
         // is required for the function to
         // be able to receive Ether.
+
+        // If this is the first bid
+        if (!firstBidDone[_auctionId]) {
+            firstBidDone[_auctionId] = true;
+            auctionEndTime[_auctionId] = block.timestamp + secondsInDay * 3;
+        }
         
         // Check if auction ended
         require(!ended[_auctionId], "auctionEnd has already been called.");
@@ -149,12 +155,6 @@ contract SimpleAuction is Ownable{
         // if time to end is less
         if (auctionEndTime[_auctionId] < block.timestamp + last15Minutes) {
             auctionEndTime[_auctionId] = auctionEndTime[_auctionId] + additional15Mins;
-        }
-
-        // If this is the first bid
-        if (!firstBidDone[_auctionId]) {
-            firstBidDone[_auctionId] = true;
-            auctionEndTime[_auctionId] = block.timestamp + secondsInDay * 3;
         }
 
         emit HighestBidIncreased(msg.sender, msg.value);
